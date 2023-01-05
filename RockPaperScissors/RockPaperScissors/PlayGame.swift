@@ -11,38 +11,34 @@ final class PlayGame: HandlingInput {
         var currentTurn: Turn
         
         while (true) {
-            print("가위(1), 바위(2), 보(3)! <종료 : 0> : ", terminator: "")
+            print(Namespace.rpsStart.message, terminator: "")
             
             let userInput: String? = bringUserInput()
             var userHands: RockScissorsPaper?
             let computerHands = RockScissorsPaper(rawValue: generateComputerInput())
             
-            if handlingInputError(input: userInput) == false {
-                continue
-            } else {
-                userHands = RockScissorsPaper(rawValue: castingUserInput(input: userInput))
-            }
+            guard checkValidInput(input: userInput) == true else { continue }
+            userHands = RockScissorsPaper(rawValue: castingUserInput(input: userInput))
             
             if userHands == RockScissorsPaper.exit {
-                print("게임 종료")
+                print(GameResult.end.message)
                 currentTurn = .undecidedTurn
                 return currentTurn
             }
             
-            if decideDraw(userHands?.rawValue, computerHands?.rawValue) {
-                print("비겼습니다!")
+            if checkDraw(userHands?.rawValue, computerHands?.rawValue) {
+                print(GameResult.draw.message)
                 continue
             }
             
-            if decideWin(gameName, userHands?.rawValue, computerHands?.rawValue) {
-                print("이겼습니다!")
-                currentTurn = .userTurn
-                return currentTurn
-            } else {
-                print("졌습니다!")
+            guard checkWin(gameName, userHands?.rawValue, computerHands?.rawValue) else {
+                print(GameResult.lose.message)
                 currentTurn = .computerTurn
                 return currentTurn
             }
+            print(GameResult.win.message)
+            currentTurn = .userTurn
+            return currentTurn
         }
     }
     
@@ -54,37 +50,35 @@ final class PlayGame: HandlingInput {
         }
         
         while (true) {
-            print("[\(currentTurn.rawValue)턴] 묵(1), 찌(2), 빠(3)! <종료 : 0> : ", terminator: "")
+            print(Namespace.mzbStart(turn: currentTurn.rawValue).message, terminator: "")
             let userInput: String? = bringUserInput()
             var userHands: MukZiBa?
             let computerHands = MukZiBa(rawValue: generateComputerInput())
             
-            if handlingInputError(input: userInput) == false {
-                continue
-            } else {
-                userHands = MukZiBa(rawValue: castingUserInput(input: userInput))
-            }
+            guard checkValidInput(input: userInput) == true else { continue }
+            userHands = MukZiBa(rawValue: castingUserInput(input: userInput))
             
             if userHands == MukZiBa.exit {
-                print("게임 종료")
+                print(GameResult.end.message)
                 return
             }
             
-            if decideDraw(userHands?.rawValue, computerHands?.rawValue) {
-                print("\(currentTurn.rawValue)의 승리!")
+            if checkDraw(userHands?.rawValue, computerHands?.rawValue) {
+                print(currentTurn.rawValue + Namespace.win.message)
                 break
             }
             
-            if decideWin(gameName, userHands?.rawValue, computerHands?.rawValue) {
-                currentTurn = .userTurn
-            } else {
+            guard checkWin(gameName, userHands?.rawValue, computerHands?.rawValue) else {
                 currentTurn = .computerTurn
+                print(currentTurn.rawValue + Namespace.turn.message)
+                continue
             }
-            print("\(currentTurn.rawValue)의 턴입니다")
+            currentTurn = .userTurn
+            print(currentTurn.rawValue + Namespace.turn.message)
         }
     }
     
-    func decideDraw(_ userHands: Int?, _ computerHands: Int?) -> Bool {
+    private func checkDraw(_ userHands: Int?, _ computerHands: Int?) -> Bool {
         let drawNumber = 0
         guard let userHands = userHands, let computerHands = computerHands else { return false }
         let checkNumber = userHands - computerHands
@@ -92,7 +86,7 @@ final class PlayGame: HandlingInput {
         return checkNumber == drawNumber ? true : false
     }
     
-    func decideWin(_ gameName: String, _ userHands: Int?, _ computerHands: Int?) -> Bool {
+    private func checkWin(_ gameName: String, _ userHands: Int?, _ computerHands: Int?) -> Bool {
         var winNumbers: [Int]
         
         switch gameName {

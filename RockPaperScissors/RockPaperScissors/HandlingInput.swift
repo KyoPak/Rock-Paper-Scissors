@@ -16,16 +16,15 @@ class HandlingInput {
         return input
     }
 
-    func checkUserInput(input: String?) throws -> Bool {
-        let errorSentence: String = "잘못된 입력입니다. 다시 시도해주세요."
+    private func checkUserInput(input: String?) throws -> Bool {
+        let errorSentence: String = Namespace.invalidInput.message
 
         guard let input = Int(input ?? "") else { throw InputError.numberError(message: errorSentence) }
 
         if 0...3 ~= input {
             return true
-        } else {
-            throw InputError.rangeError(message: errorSentence)
         }
+        throw InputError.rangeError(message: errorSentence)
     }
 
     func castingUserInput(input: String?) -> Int {
@@ -34,7 +33,7 @@ class HandlingInput {
         return input
     }
 
-    func handlingInputError(input: String?) -> Bool {
+    func checkValidInput(input: String?) -> Bool {
         do {
             let isCheck = try checkUserInput(input: input)
             return isCheck
